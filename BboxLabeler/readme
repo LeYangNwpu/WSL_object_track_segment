@@ -1,0 +1,31 @@
+% 代码来源于Piotr's Computer Vision Matlab Toolbox
+% https://pdollar.github.io/toolbox/
+% 从中选择和bounding box标注相关的部分，整理得到目前的代码
+
+% 本程序支持同时对多个物体进行标注
+% 本程序支持在标注时对图像的局部进行放大，以得到更精细的标注
+
+%%%% 使用说明 %%%%
+选择图片：
+空格键：前进一张图片
+双击：前进一张图片
+可以根据索引直接跳转到制定的图片，用于前进或回退
+滑动鼠标滚轮：放大或缩小图片
+
+修正物体框：
+在空白区域单击并拖动：创建新的物体框
+单击已有物体框：选择物体框
+单击并拖动已有物体框的边：调整选定的边
+Ctrl + 箭头（上下左右）：平移选中的框
+Delete：删除选中的物体框
+
+
+%%%% 示例程序 %%%%
+% 对于单个物体：objTypes={'person1'};
+% 对于多个物体：objTypes={'person1', 'person2'};
+img_dir = './image/';
+res_dir = './res/';
+% objTypes={'person1'};
+objTypes={'person1', 'person2'};
+bbLabeler( objTypes, img_dir, res_dir );
+
