@@ -31,6 +31,9 @@ function [fr,macroDat,im,u,v] = FancyFlowPlayer(pathToSave)
 %%% im is the video frame
 % figure;imagesc(im);
 
+% intialize a video reader
+video_object = VideoReader(pathToSave);
+
 %keep track of previous selected folder:
 persistent PathName; 
 
@@ -94,22 +97,6 @@ title(['Source of video input: ' macroDat.movieType]);
 hCrossL = plot(0,0,'rx', 'Visible','off','MarkerSize',7,'hittest','off');
 listOfAxes = hAxLeft;
 
-if ~isempty(u)
-    hAxRight = subplot('Position',axPosR);
-    hFlow = imagesc(flow2colIm(u,v)); axis image; set(hFlow,'hitTest','off'); hold on
-    hCrossR = plot(0,0,'wx','Visible','off','MarkerSize',7,'hittest','off');
-    if strcmpi(macroDat.method, 'user')
-        title(['Method: ' func2str(macroDat.userDefMethod)]);
-    else
-        if strcmpi(macroDat.method,'synthetic')
-            title(['Method: Ground Truth (' macroDat.method ')']);
-        else
-            title(['Method: ' macroDat.method]);
-        end
-    end
-    listOfAxes = [hAxRight, hAxLeft];
-end
-
 axHandle = subplot('Position',[0  0.005 1 0.06]); 
 set(axHandle,'XLim',[0 1],'YLim',[0 1], 'XTickMode','manual','YTickMode','manual',...
      'XTick',[],'YTick',[],'XTickLabelMode','manual','XTickLabel',[],...
@@ -149,10 +136,18 @@ while ishandle(hFig) && ~bKillAll
     end
 
     %     update graphics:
+%     %%% we should draw box here
+%     if ~exist('last_box.txt', 'file')
+%         disp('please annotate');
+%     else
+%         disp('Tracking');
+%     end
+        % read txt to obtain box coordinate, the draw_box
+%     %%% draw_frame_box
     set(hIm,  'CData' ,im);
-    if ~isempty(u)
-        set(hFlow,'CData' ,flow2colIm(u,v));
-    end        
+%     if ~isempty(u)
+%         set(hFlow,'CData' ,flow2colIm(u,v));
+%     end        
     fr = macroDat.fileReadPointer-1;
 
     seekProgress = fr/macroDat.nofFrames;
@@ -217,6 +212,20 @@ function locKeypress(~,evnt)
               tic;
               curTime = 0;
               prevTime = -adaptiveDelay;
+          end
+      case 'm'
+          if bPause == 1
+              %%% delete existing image
+              delete('./temp/image/*.jpg');
+              %%% save current image
+              frame = read(video_object, fr);
+              image_name = [num2str(fr), '.jpg'];
+              imwrite(frame, ['./temp/image/', image_name]);
+              %%% start image labeler
+              objTypes={'ann1'};
+              img_dir = './temp/image/';
+              res_dir = './temp/res/';
+              bbLabeler( objTypes, img_dir, res_dir );
           end
       case 'rightarrow'
           reqFr = min(fr +1,macroDat.nofFrames);
