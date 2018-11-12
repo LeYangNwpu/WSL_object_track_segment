@@ -118,7 +118,7 @@ adaptiveDelay = (1/(macroDat.targetFramerate*1.05));
 curTime = 0;
 prevTime = -adaptiveDelay;
 curTargetFrameRate = macroDat.targetFramerate;
-fr = 1;
+fr = 2;
 while ishandle(hFig) && ~bKillAll
 	set(hText,'String',['frame '  num2str(fr) '/' num2str(macroDat.nofFrames) '  target FPS: ' num2str(curTargetFrameRate)]);
     if bSeeking % seeking mode is initialized when seekbar is dragged, or arrow keys used
@@ -135,15 +135,40 @@ while ishandle(hFig) && ~bKillAll
         end
     end
 
-    %     update graphics:
-%     %%% we should draw box here
-%     if ~exist('last_box.txt', 'file')
-%         disp('please annotate');
-%     else
-%         disp('Tracking');
-%     end
-        % read txt to obtain box coordinate, the draw_box
-%     %%% draw_frame_box
+    % if not exist box for former frame, ask for annotation
+    former_txt_name = [num2str(fr-1), '.txt'];
+    if (~exist(['./temp/ann/', former_txt_name], 'file'))
+        %%% delete existing image
+        delete('./temp/image/*.jpg');
+        delete('./temp/res/*.txt');
+        %%% save former image
+        form_fr = fr - 1;
+        form_frame = read(video_object, form_fr);
+        form_image_name = [num2str(form_fr), '.jpg'];
+        imwrite(form_frame, ['./temp/image/', form_image_name]);
+        %%% start image labeler
+        form_objTypes={'ann1'};
+        form_img_dir = './temp/image/';
+        form_res_dir = './temp/res/';
+        bbLabeler( form_objTypes, form_img_dir, form_res_dir );
+        form_txt_name = [form_image_name(1:end-4), '.jpg.txt'];
+        
+        Flag_copy = false;
+        while ~ Flag_copy
+            try 
+                copyfile([form_res_dir, form_txt_name], ['./temp/ann/', former_txt_name]);
+                Flag_copy = true;
+            catch
+                pause(0.01);
+            end
+        end
+    end
+    
+    % Track object here
+    cur_box = demo_tracker(video_object, fr);
+    im = draw_box(im, cur_box);
+
+%     update graphics:
     set(hIm,  'CData' ,im);
 %     if ~isempty(u)
 %         set(hFlow,'CData' ,flow2colIm(u,v));
