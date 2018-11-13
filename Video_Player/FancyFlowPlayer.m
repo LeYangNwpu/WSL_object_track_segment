@@ -157,6 +157,7 @@ while ishandle(hFig) && ~bKillAll
         while ~ Flag_copy
             try 
                 copyfile([form_res_dir, form_txt_name], ['./temp/ann/', former_txt_name]);
+                copyfile([form_res_dir, form_txt_name], './temp/res/groundtruth_rect.txt');
                 Flag_copy = true;
             catch
                 pause(0.01);
@@ -164,15 +165,34 @@ while ishandle(hFig) && ~bKillAll
         end
     end
     
-    % Track object here
-    cur_box = demo_tracker(video_object, fr);
-    im = draw_box(im, cur_box);
+    % upload frame_t, frame_t_1, and box_t-1 to remote server
+    % prepare data for upload
+    form_fr = fr - 1;
+    form_frame = read(video_object, form_fr);
+    imwrite(form_frame, './temp/image/1.jpg');
+    cur_frame = read(video_object, fr);
+    imwrite(cur_frame, './temp/image/2.jpg');
+    uploadfile();
+    
+    % Waiting fot ubuntu track object
+    Flag_download = false;
+    while ~ Flag_download
+        try 
+            downloadfile();
+            copyfile('./temp/ann/cur_box.txt', ['./temp/ann/', num2str(fr), '.txt']);
+            copyfile('./temp/ann/cur_box.txt', ['./temp/res/groundtruth_rect.txt']);
+            Flag_download = true;
+        catch
+            pause(0.01);
+        end
+    end
+    
+    cur_box = load('./temp/ann/cur_box.txt');
+    im_box = draw_box(im, cur_box);
 
 %     update graphics:
-    set(hIm,  'CData' ,im);
-%     if ~isempty(u)
-%         set(hFlow,'CData' ,flow2colIm(u,v));
-%     end        
+    set(hIm,  'CData' ,im_box);
+    
     fr = macroDat.fileReadPointer-1;
 
     seekProgress = fr/macroDat.nofFrames;

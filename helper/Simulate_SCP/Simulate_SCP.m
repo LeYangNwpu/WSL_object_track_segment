@@ -1,5 +1,5 @@
 
-img_file = './temp/frame_t.png';
+img_file = './img/2.png';
 
 % a bug here, how to exit?
 while true
@@ -12,21 +12,21 @@ end
 
 % copy data
 function execution()
-    img_rp = './temp/image/';
-    mask_rp = './temp/mask/';
+    img_rp = './image/';
+    mask_rp = './mask/';
     img_set = dir([img_rp, '*.png']);
     num_img = length(img_set);
     
     t = randi([2, num_img], 1);
     cur_name = img_set(t).name;
-    copyfile([img_rp, cur_name], ['./temp/', 'frame_t.png']);
+    copyfile([img_rp, cur_name], ['./img/', '2.png']);
     former_name = img_set(t-1).name;
-    copyfile([img_rp, former_name], ['./temp/', 'frame_t_1.png']);
+    copyfile([img_rp, former_name], ['./img/', '1.png']);
     % former object box
     mask = imread([mask_rp, former_name]);
     bbox = BoundingBox(mask);
-    former_txt_name = 'box_t_1.txt';
-    fid = fopen(['./temp/', former_txt_name], 'w');
+    former_txt_name = 'groundtruth_rect.txt';
+    fid = fopen(former_txt_name, 'w');
     fprintf(fid,'%i %i %i %i',bbox(1), bbox(2),  bbox(3),  bbox(4)); 
     fprintf(fid,'\r\n');
     fclose(fid);

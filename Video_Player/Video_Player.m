@@ -150,28 +150,8 @@ function pushbutton2_Callback(hObject, eventdata, handles)
 FancyFlowPlayer(handles.input_video_file);
 % annotate image
 
-
-
 set(handles.pushbutton4,'Enable','on');
 set(handles.pushbutton3,'Enable','off');
-
-
-%%% backup here
-% videoObject = handles.videoObject;
-% set(handles.pushbutton3,'Enable','on');
-% set(handles.pushbutton2,'Enable','off');
-% axes(handles.axes1);
-% 
-% for frameCount = 2:videoObject.NumberOfFrames
-%     % Display frames
-%     set(handles.text3,'String',num2str(frameCount));
-%     frame = read(videoObject,frameCount);
-%     imshow(frame);
-%     drawnow;
-% end
-% set(handles.pushbutton4,'Enable','on');
-% set(handles.pushbutton3,'Enable','off');
-
 
 
 % ************************ PAUSE / PLAY ***********************************
